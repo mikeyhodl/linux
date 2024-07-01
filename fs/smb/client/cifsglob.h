@@ -1494,6 +1494,8 @@ struct cifs_aio_ctx {
 struct cifs_io_request {
 	struct netfs_io_request		rreq;
 	struct cifsFileInfo		*cfile;
+	struct TCP_Server_Info		*server;
+	pid_t				pid;
 };
 
 /* asynchronous read support */
@@ -1504,7 +1506,6 @@ struct cifs_io_subrequest {
 		struct cifs_io_request *req;
 	};
 	ssize_t				got_bytes;
-	pid_t				pid;
 	unsigned int			xid;
 	int				result;
 	bool				have_xid;
@@ -1995,6 +1996,7 @@ require use of the stronger protocol */
  *				->chans_need_reconnect
  *				->chans_in_reconnect
  * cifs_tcon->tc_lock		(anything that is not protected by another lock and can change)
+ * inode->i_rwsem, taken by fs/netfs/locking.c e.g. should be taken before cifsInodeInfo locks
  * cifsInodeInfo->open_file_lock	cifsInodeInfo->openFileList	cifs_alloc_inode
  * cifsInodeInfo->writers_lock	cifsInodeInfo->writers		cifsInodeInfo_alloc
  * cifsInodeInfo->lock_sem	cifsInodeInfo->llist		cifs_init_once
